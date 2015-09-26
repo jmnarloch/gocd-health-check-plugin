@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<go-plugin id="healthcheck.task.plugin" version="${version}">
+    <about>
+        <name>Health Check Task Plugin</name>
+        <version>${version}</version>
+        <target-go-version>14.4.0</target-go-version>
+        <description>
+            Go Task plugin for awaiting until application is healthy
+        </description>
+        <vendor>
+            <name>Jakub Narloch</name>
+            <url>http://github.com/jmnarloch/gocd-gradle-plugin</url>
+        </vendor>
+    </about>
+</go-plugin>

@@ -1,0 +1,20 @@
+ext {
+
+    libraries = [
+            goPluginApi  : 'cd.go.plugin:go-plugin-api:14.4.0',
+            gocdTaskPluginApi  : 'io.jmnarloch:gocd-task-plugin-api:1.0.0',
+
+            reactorCore: "io.projectreactor:reactor-core:2.0.5.RELEASE",
+            reactorStream: "io.projectreactor:reactor-stream:2.0.5.RELEASE",
+            reactorNet: "io.projectreactor:reactor-net:2.0.5.RELEASE",
+
+            jackson: 'com.fasterxml.jackson.core:jackson-databind:2.6.2',
+
+            commonsIO    : 'commons-io:commons-io:2.4',
+            commonsLang  : 'org.apache.commons:commons-lang3:3.4',
+            gson         : 'com.google.code.gson:gson:2.3.1',
+
+            junit        : 'junit:junit:4.12',
+            mockito      : 'org.mockito:mockito-all:1.10.19'
+    ]
+}
