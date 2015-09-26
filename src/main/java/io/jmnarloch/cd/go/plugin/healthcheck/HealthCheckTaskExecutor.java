@@ -22,6 +22,7 @@ import io.jmnarloch.cd.go.plugin.api.executor.ExecutionConfiguration;
 import io.jmnarloch.cd.go.plugin.api.executor.ExecutionContext;
 import io.jmnarloch.cd.go.plugin.api.executor.ExecutionResult;
 import io.jmnarloch.cd.go.plugin.api.executor.TaskExecutor;
+import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Publisher;
 import reactor.Environment;
 import reactor.fn.Function;
@@ -108,7 +109,7 @@ public class HealthCheckTaskExecutor implements TaskExecutor {
     private Predicate<String> expectStatus(final String status) {
         return new Predicate<String>() {
             public boolean test(String instanceStatus) {
-                return status.equals(instanceStatus);
+                return StringUtils.equalsIgnoreCase(instanceStatus, status);
             }
         };
     }
