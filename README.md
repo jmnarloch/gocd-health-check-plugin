@@ -13,9 +13,9 @@ The plugin should appear on Plugins page.
 ## Usage
 
 Add Health Check task to your build stage. The task with delay the execution of your pipeline according 
-to the configured pipeline in the same time performing fixed delay HTTP request to the configured health url.
+to the configured setting in the same time performing fixed delay HTTP request to the provided health url.
 
-The health information is expected to be returned in a form of JSON with configurable expected status value.
+The application health information is expected to be returned in a form of JSON with configurable expected status.
 
 ![Health Check task](screen.png)
 
