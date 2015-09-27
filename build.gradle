@@ -58,10 +58,10 @@ dependencies {
     provided (libraries.goPluginApi)
 
     compile (libraries.gocdTaskPluginApi)
-    compile (libraries.reactorCore)
-    compile (libraries.reactorStream)
-    compile (libraries.reactorNet)
+    compile (libraries.rxJava)
+    compile (libraries.rxNetty)
     compile (libraries.jackson)
+
     compile (libraries.gson)
     compile (libraries.commonsIO)
     compile (libraries.commonsLang)
@@ -71,6 +71,8 @@ dependencies {
 }
 
 sourceSets.main.compileClasspath += [configurations.provided]
+sourceSets.test.compileClasspath += [configurations.provided]
+sourceSets.test.runtimeClasspath += [configurations.provided]
 
 processResources {
     expand(project.properties)

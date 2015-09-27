@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * Provided the task view.
  *
+ * @author Jakub Narloch
  */
 public class HealthCheckTaskView implements TaskView {
 

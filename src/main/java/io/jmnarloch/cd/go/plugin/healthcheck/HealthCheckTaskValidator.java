@@ -21,7 +21,9 @@ import io.jmnarloch.cd.go.plugin.api.validation.ValidationErrors;
 import java.util.Map;
 
 /**
+ * Validates the task configuration.
  *
+ * @author Jakub Narloch
  */
 public class HealthCheckTaskValidator implements TaskValidator {
 

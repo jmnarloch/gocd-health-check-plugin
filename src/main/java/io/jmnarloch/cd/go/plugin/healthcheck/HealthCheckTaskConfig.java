@@ -19,7 +19,9 @@ import io.jmnarloch.cd.go.plugin.api.config.ConfigProperty;
 import io.jmnarloch.cd.go.plugin.api.config.PropertyName;
 
 /**
+ * Enumerates the task configuration.
  *
+ * @author Jakub Narloch
  */
 public enum HealthCheckTaskConfig {
 

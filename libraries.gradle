@@ -4,9 +4,8 @@ ext {
             goPluginApi  : 'cd.go.plugin:go-plugin-api:14.4.0',
             gocdTaskPluginApi  : 'io.jmnarloch:gocd-task-plugin-api:1.0.0',
 
-            reactorCore: "io.projectreactor:reactor-core:2.0.5.RELEASE",
-            reactorStream: "io.projectreactor:reactor-stream:2.0.5.RELEASE",
-            reactorNet: "io.projectreactor:reactor-net:2.0.5.RELEASE",
+            rxJava: 'io.reactivex:rxjava:1.0.14',
+            rxNetty: 'io.reactivex:rxnetty:0.4.11',
 
             jackson: 'com.fasterxml.jackson.core:jackson-databind:2.6.2',
 

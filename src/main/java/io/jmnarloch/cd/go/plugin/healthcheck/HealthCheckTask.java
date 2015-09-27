@@ -22,7 +22,9 @@ import io.jmnarloch.cd.go.plugin.api.dispatcher.ApiRequestDispatcherBuilder;
 import io.jmnarloch.cd.go.plugin.api.task.AbstractDispatchingTask;
 
 /**
+ * The health check plugin.
  *
+ * @author Jakub Narloch
  */
 @Extension
 public class HealthCheckTask extends AbstractDispatchingTask {

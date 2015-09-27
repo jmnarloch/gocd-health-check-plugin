@@ -15,56 +15,86 @@
  */
 package io.jmnarloch.cd.go.plugin.healthcheck;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.task.JobConsoleLogger;
 import io.jmnarloch.cd.go.plugin.api.executor.ExecutionConfiguration;
 import io.jmnarloch.cd.go.plugin.api.executor.ExecutionContext;
 import io.jmnarloch.cd.go.plugin.api.executor.ExecutionResult;
 import io.jmnarloch.cd.go.plugin.api.executor.TaskExecutor;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.reactivestreams.Publisher;
-import reactor.Environment;
-import reactor.fn.Function;
-import reactor.fn.Predicate;
-import reactor.io.buffer.Buffer;
-import reactor.io.codec.json.JsonCodec;
-import reactor.io.net.NetStreams;
-import reactor.io.net.http.HttpChannel;
-import reactor.rx.Promise;
-import reactor.rx.Streams;
+import rx.Observable;
+import rx.functions.Func1;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * The health check executor. The plugin will perform polling of the configured health url until it will receive
+ * the first successful response matching the specific instance status. If the connection can not be establish or
+ * the health check statuses will not match the expected value the pooling will be timeouted after configured number
+ * of seconds and the step itself will result in build error.
  *
+ * @author Jakub Narloch
  */
 public class HealthCheckTaskExecutor implements TaskExecutor {
 
+    /**
+     * The logger used by this class.
+     */
     private final Logger logger = Logger.getLoggerFor(HealthCheckTaskExecutor.class);
 
+    /**
+     * The JSON parser.
+     */
+    private final JsonParser parser;
+
+    /**
+     * Creates new instance of {@link HealthCheckTaskExecutor}.
+     */
+    public HealthCheckTaskExecutor() {
+        this(new JsonParser());
+    }
+
+    /**
+     * Creates new instance of {@link HealthCheckTaskExecutor} with specific JSON parser.
+     *
+     * @param parser the JSON parser
+     */
+    public HealthCheckTaskExecutor(JsonParser parser) {
+        this.parser = parser;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ExecutionResult execute(ExecutionContext context, ExecutionConfiguration config, JobConsoleLogger console) {
 
-        final JsonCodec<JsonNode, JsonNode> codec = new JsonCodec<>(JsonNode.class);
-
         try {
-            Environment.initialize();
-
             final String healthCheckUrl = getProperty(config, HealthCheckTaskConfig.URL);
             final String attribute = getProperty(config, HealthCheckTaskConfig.ATTRIBUTE);
             final String status = getProperty(config, HealthCheckTaskConfig.STATUS);
             final int timeout = getIntProperty(config, HealthCheckTaskConfig.TIMEOUT, 60);
             final int retryDelay = getIntProperty(config, HealthCheckTaskConfig.DELAY, 15);
 
-            final boolean success = Streams.period(retryDelay, TimeUnit.SECONDS)
-                    .flatMap(healthCheck(healthCheckUrl, codec))
-                    .map(mapStatus(attribute))
-                    .filter(expectStatus(status))
-                    .next()
-                    .awaitSuccess(timeout, TimeUnit.SECONDS);
+            final boolean success = RxNetty.createHttpGet(healthCheckUrl)
+                    .flatMap(parseJsonElement())
+                    .map(mapStatusAttribute(attribute))
+                    .map(mapAttributeValue())
+                    .map(matchStatus(status))
+                    .filter(filterStatuses())
+                    .switchIfEmpty(Observable.<Boolean>error(null))
+                    .retryWhen(retryPolicy(retryDelay, timeout))
+                    .timeout(timeout, TimeUnit.SECONDS)
+                    .toBlocking()
+                    .firstOrDefault(false);
 
-            if(!success) {
+            if (!success) {
                 return ExecutionResult.failure("Health check failed");
             }
 
@@ -76,49 +106,121 @@ public class HealthCheckTaskExecutor implements TaskExecutor {
         }
     }
 
-    private Function<Long, Publisher<JsonNode>> healthCheck(final String healthCheckUrl, final JsonCodec<JsonNode, JsonNode> codec) {
-        return new Function<Long, Publisher<JsonNode>>() {
-            public Publisher<JsonNode> apply(Long aLong) {
-                return healthCheck(healthCheckUrl)
-                        .flatMap(decodeInstanceStatus(codec));
+    /**
+     * Maps the HTTP response and unmarshalls it's JSON payload.
+     *
+     * @return the mapping function
+     */
+    private Func1<HttpClientResponse<ByteBuf>, Observable<JsonElement>> parseJsonElement() {
+        return new Func1<HttpClientResponse<ByteBuf>, Observable<JsonElement>>() {
+            @Override
+            public Observable<JsonElement> call(HttpClientResponse<ByteBuf> response) {
+                return response.getContent().map(new Func1<ByteBuf, JsonElement>() {
+                    @Override
+                    public JsonElement call(ByteBuf byteBuf) {
+                        return parser.parse(byteBuf.toString(StandardCharsets.UTF_8));
+                    }
+                });
             }
         };
     }
 
-    private Promise<? extends HttpChannel<Buffer, Buffer>> healthCheck(final String healthCheckUrl) {
-        return NetStreams.httpClient().get(healthCheckUrl);
-    }
-
-    private <T> Function<HttpChannel<Buffer, Buffer>, Publisher<T>> decodeInstanceStatus(
-            final JsonCodec<T, T> codec) {
-        return new Function<HttpChannel<Buffer, Buffer>, Publisher<T>>() {
-            public Publisher<T> apply(HttpChannel<Buffer, Buffer> bufferBufferHttpChannel) {
-                return bufferBufferHttpChannel.decode(codec);
+    /**
+     * Maps the attribute that indicates the instance status.
+     *
+     * @param attribute the attribute name
+     * @return the mapping function
+     */
+    private Func1<JsonElement, JsonElement> mapStatusAttribute(final String attribute) {
+        return new Func1<JsonElement, JsonElement>() {
+            @Override
+            public JsonElement call(JsonElement jsonElement) {
+                return jsonElement.getAsJsonObject().get(attribute);
             }
         };
     }
 
-    private Function<JsonNode, String> mapStatus(final String attribute) {
-        return new Function<JsonNode, String>() {
-            public String apply(JsonNode instanceStatus) {
-                return instanceStatus.get(attribute).textValue();
+    /**
+     * Maps the attribute string value.
+     *
+     * @return the mapping function
+     */
+    private Func1<JsonElement, String> mapAttributeValue() {
+        return new Func1<JsonElement, String>() {
+            @Override
+            public String call(JsonElement jsonElement) {
+                return jsonElement.getAsString();
             }
         };
     }
 
-    private Predicate<String> expectStatus(final String status) {
-        return new Predicate<String>() {
-            public boolean test(String instanceStatus) {
-                return StringUtils.equalsIgnoreCase(instanceStatus, status);
+    /**
+     * Matches the expected application status.
+     *
+     * @param status the status
+     * @return the mapping function
+     */
+    private Func1<String, Boolean> matchStatus(final String status) {
+        return new Func1<String, Boolean>() {
+            @Override
+            public Boolean call(String instanceStatus) {
+                return StringUtils.equalsIgnoreCase(status, instanceStatus);
             }
         };
     }
 
+    /**
+     * Filters the application status.
+     *
+     * @return the predicate
+     */
+    private Func1<Boolean, Boolean> filterStatuses() {
+        return new Func1<Boolean, Boolean>() {
+            @Override
+            public Boolean call(Boolean value) {
+                return Boolean.TRUE.equals(value);
+            }
+        };
+    }
+
+    /**
+     * Specifies the retry policy for the {@link Observable}.
+     *
+     * @param retryDelay the delay
+     * @param timeout the maximum timeout
+     * @return the retry policy
+     */
+    private Func1<Observable<? extends Throwable>, Observable<?>> retryPolicy(final int retryDelay, final int timeout) {
+        return new Func1<Observable<? extends Throwable>, Observable<?>>() {
+            @Override
+            public Observable<?> call(Observable<? extends Throwable> observable) {
+                final int retries = retryDelay > 0 && retryDelay <= timeout ? timeout / retryDelay : 0;
+
+                return Observable.interval(retryDelay, TimeUnit.SECONDS).take(retries);
+            }
+        };
+    }
+
+    /**
+     * Retrieves the integer property value.
+     *
+     * @param config the configuration
+     * @param property the property name
+     * @param defaultValue the default value
+     * @return the property value
+     */
     private int getIntProperty(ExecutionConfiguration config, HealthCheckTaskConfig property, int defaultValue) {
         final String value = getProperty(config, property);
         return value != null ? Integer.parseInt(value) : defaultValue;
     }
 
+    /**
+     * Retrieves the property value.
+     *
+     * @param config the configuration
+     * @param property the property name
+     * @return the property value
+     */
     private String getProperty(ExecutionConfiguration config, HealthCheckTaskConfig property) {
         return config.getProperty(property.getName());
     }
