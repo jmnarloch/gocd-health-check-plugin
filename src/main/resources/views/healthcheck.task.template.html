@@ -11,10 +11,12 @@
     <input id="status" name="status" type="text" ng-model="Status" ng-required="true"/>
 </div>
 <div class="form_item_block">
-    <label for="delay">Delay:<span class="asterisk">*</span></label>
-    <input id="delay" name="delay" type="number" ng-model="Delay" min="1" ng-required="true"/>
+    <label for="delayValue">Delay:<span class="asterisk">*</span></label>
+    <input id="delayValue" name="delayValue" type="number" ng-model="DelayValue" ng-init="DelayValue = Delay-0" ng-change="Delay = DelayValue+''" min="1" ng-required="true"/>
+    <input id="delay" type="hidden" ng-model="Delay" value="{{Delay}}">
 </div>
 <div class="form_item_block">
-    <label for="timeout">Timeout:<span class="asterisk">*</span></label>
-    <input id="timeout" name="timeout" type="number" ng-model="Timeout" min="1" ng-required="true"/>
+    <label for="timeoutValue">Timeout:<span class="asterisk">*</span></label>
+    <input id="timeoutValue" name="timeoutValue" type="number" ng-model="TimeoutValue" ng-init="TimeoutValue = Timeout-0" ng-change="Timeout = TimeoutValue+''" min="1" ng-required="true"/>
+    <input id="timeout" type="hidden" ng-model="Timeout" value="{{Timeout}}">
 </div>
