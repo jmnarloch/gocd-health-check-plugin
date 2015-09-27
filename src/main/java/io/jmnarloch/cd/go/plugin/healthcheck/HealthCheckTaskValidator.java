@@ -15,8 +15,9 @@
  */
 package io.jmnarloch.cd.go.plugin.healthcheck;
 
-import io.jmnarloch.cd.go.plugin.api.validation.TaskValidator;
+import io.jmnarloch.cd.go.plugin.api.validation.AbstractTaskValidator;
 import io.jmnarloch.cd.go.plugin.api.validation.ValidationErrors;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -25,11 +26,30 @@ import java.util.Map;
  *
  * @author Jakub Narloch
  */
-public class HealthCheckTaskValidator implements TaskValidator {
+public class HealthCheckTaskValidator extends AbstractTaskValidator {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ValidationErrors validate(Map<String, Object> properties) {
+    public void validate(Map<String, Object> properties, ValidationErrors errors) {
 
-        return new ValidationErrors();
+        rejectIfEmpty(properties, errors, HealthCheckTaskConfig.URL.getName(), "Url must be specified");
+        rejectIfEmpty(properties, errors, HealthCheckTaskConfig.ATTRIBUTE.getName(), "Attribute must be specified");
+        rejectIfEmpty(properties, errors, HealthCheckTaskConfig.STATUS.getName(), "Status must be specified");
+    }
+
+    /**
+     * Rejects the value if it's empty.
+     *
+     * @param properties the properties
+     * @param errors     the validation errors
+     * @param name       the property name
+     * @param message    the message
+     */
+    private void rejectIfEmpty(Map<String, Object> properties, ValidationErrors errors, String name, String message) {
+        if(StringUtils.isBlank(getProperty(properties, name))) {
+            errors.addError(name, message);
+        }
     }
 }
