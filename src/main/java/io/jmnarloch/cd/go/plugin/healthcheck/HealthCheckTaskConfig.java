@@ -25,28 +25,56 @@ import io.jmnarloch.cd.go.plugin.api.config.PropertyName;
  */
 public enum HealthCheckTaskConfig {
 
+    /**
+     * The health url.
+     */
     @ConfigProperty(defaultValue = "http://localhost:8080/health", required = true)
     URL("Url"),
 
+    /**
+     * The health status attribute.
+     */
     @ConfigProperty(defaultValue = "status", required = true)
     ATTRIBUTE("Attribute"),
 
+    /**
+     * The expected status.
+     */
     @ConfigProperty(defaultValue = "UP", required = true)
     STATUS("Status"),
 
+    /**
+     * The delay between requests.
+     */
     @ConfigProperty(defaultValue = "15", required = true)
     DELAY("Delay"),
 
+    /**
+     * The maximum timeout for awaiting the application to become healthy.
+     */
     @ConfigProperty(defaultValue = "60", required = true)
     TIMEOUT("Timeout");
 
+    /**
+     * The property name.
+     */
     @PropertyName
     private final String name;
 
+    /**
+     * Creates new instance of {@link HealthCheckTaskConfig}.
+     *
+     * @param name the property name
+     */
     HealthCheckTaskConfig(String name) {
         this.name = name;
     }
 
+    /**
+     * Retrieves the property name.
+     * 
+     * @return the property name
+     */
     public String getName() {
         return name;
     }

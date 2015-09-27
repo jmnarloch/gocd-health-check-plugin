@@ -33,21 +33,38 @@ import rx.Observable;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Tests the HealthCheckTaskExecutor.
  *
  * @author Jakub Narloch
  */
 public class HealthCheckTaskExecutorTest {
 
+    /**
+     * The port of http server.
+     */
     private static final int PORT = 18080;
+
+    /**
+     * The instance of tested class.
+     */
     private HealthCheckTaskExecutor instance;
 
+    /**
+     * The http server.
+     */
     private HttpServer<ByteBuf, ByteBuf> server;
 
+    /**
+     * Setups the test environment.
+     *
+     * @throws Exception if any error occurs
+     */
     @Before
     public void setUp() throws Exception {
 
@@ -66,12 +83,20 @@ public class HealthCheckTaskExecutorTest {
         }).start();
     }
 
+    /**
+     * Tears down the test environment.
+     *
+     * @throws Exception if any error occurs
+     */
     @After
     public void tearDown() throws Exception {
 
         server.shutdown();
     }
 
+    /**
+     * Tests whether the health check succeeds.
+     */
     @Test
     public void shouldSuccess() {
 
@@ -88,6 +113,9 @@ public class HealthCheckTaskExecutorTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * Tests the timeout and failure of the task on incorrect application status.
+     */
     @Test
     public void shouldTimeoutStatus() {
 
@@ -104,6 +132,9 @@ public class HealthCheckTaskExecutorTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * Tests the timeout and failure of the task on connection error.
+     */
     @Test
     public void shouldTimeoutConnection() {
 
@@ -120,13 +151,29 @@ public class HealthCheckTaskExecutorTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * Builds the url for testing purpose.
+     *
+     * @param path the path
+     * @return the url
+     */
     private String url(final String path) {
         return String.format("http://localhost:%d%s", PORT, path);
     }
 
+    /**
+     * Creates the configuration for executing the task.
+     *
+     * @param url the health url
+     * @param attribute the attribute name
+     * @param status the attribute value
+     * @param delay the delay in seconds
+     * @param timeout the timeout in seconds
+     * @return the created configuration
+     */
     private ExecutionConfiguration configuration(String url, String attribute, String status, int delay, int timeout) {
 
-        final HashMap<String, Object> configuration = new HashMap<>();
+        final Map<String, Object> configuration = new HashMap<>();
         addProperty(configuration, "Url", url);
         addProperty(configuration, "Attribute", attribute);
         addProperty(configuration, "Status", status);
@@ -135,7 +182,14 @@ public class HealthCheckTaskExecutorTest {
         return new ExecutionConfiguration(configuration);
     }
 
-    private void addProperty(HashMap<String, Object> configuration, String name, String value) {
+    /**
+     * Adds the property to the configuration map.
+     *
+     * @param configuration the configuration
+     * @param name the property name
+     * @param value the property value
+     */
+    private void addProperty(Map<String, Object> configuration, String name, String value) {
         configuration.put(name, Collections.singletonMap("value", value));
     }
 

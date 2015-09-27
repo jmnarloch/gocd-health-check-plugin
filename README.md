@@ -12,7 +12,10 @@ The plugin should appear on Plugins page.
 
 ## Usage
 
-Add Health Check task to your build stage.
+Add Health Check task to your build stage. The task with delay the execution of your pipeline according 
+to the configured pipeline in the same time performing fixed delay HTTP request to the configured health url.
+
+The health information is expected to be returned in a form of JSON with configurable expected status value.
 
 ![Health Check task](screen.png)
 
@@ -20,7 +23,7 @@ Add Health Check task to your build stage.
 
 ### Url
 
-The url to the the application health status. (required)
+The url to the application health information. (required)
 
 Example: http://localhost:8080/health
 
@@ -32,13 +35,13 @@ Example: status
 
 ### Expected status
 
-The application expected health status. (required)
+The expected application health status. (required)
 
 Example: UP
 
 ### Delay
 
-Time in seconds after a retry check will be performed. (required)
+Time in seconds after a retry check will be performed after unsuccessful request. (required)
 
 Example: 15
 
