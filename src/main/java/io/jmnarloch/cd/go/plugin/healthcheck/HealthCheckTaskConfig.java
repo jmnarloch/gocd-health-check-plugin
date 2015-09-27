@@ -72,7 +72,7 @@ public enum HealthCheckTaskConfig {
 
     /**
      * Retrieves the property name.
-     * 
+     *
      * @return the property name
      */
     public String getName() {

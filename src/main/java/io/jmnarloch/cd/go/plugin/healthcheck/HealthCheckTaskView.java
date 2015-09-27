@@ -31,12 +31,12 @@ import java.nio.charset.StandardCharsets;
 public class HealthCheckTaskView implements TaskView {
 
     /**
-     * The Gradle task view name.
+     * The health check task view name.
      */
     private static final String NAME = "Health Check";
 
     /**
-     * The Gradle view template path.
+     * The view template path.
      */
     private static final String TEMPLATE_PATH = "/views/healthcheck.task.template.html";
 
