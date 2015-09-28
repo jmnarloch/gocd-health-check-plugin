@@ -9,7 +9,7 @@
         </description>
         <vendor>
             <name>Jakub Narloch</name>
-            <url>http://github.com/jmnarloch/gocd-gradle-plugin</url>
+            <url>http://github.com/jmnarloch/gocd-health-check-plugin</url>
         </vendor>
     </about>
 </go-plugin>
