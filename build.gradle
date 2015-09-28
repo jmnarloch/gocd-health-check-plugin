@@ -60,7 +60,6 @@ dependencies {
     compile (libraries.gocdTaskPluginApi)
     compile (libraries.rxJava)
     compile (libraries.rxNetty)
-    compile (libraries.jackson)
 
     compile (libraries.gson)
     compile (libraries.commonsIO)
