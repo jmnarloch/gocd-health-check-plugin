@@ -35,9 +35,9 @@ uploadArchives {
             }
 
             pom.project {
-                name 'Go Continous Delivery Gradle plugin'
+                name 'Go Continous Delivery Health check plugin'
                 packaging 'jar'
-                description 'Go Continous Delivery Gradle plugin'
+                description 'Go Continous Delivery Health check plugin'
                 url 'https://github.com/jmnarloch/gocd-health-check-plugin'
 
                 scm {
