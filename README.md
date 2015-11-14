@@ -32,7 +32,9 @@ Example: http://localhost:8080/health
 
 The name of attribute indicating the application status. (required)
 
-Example: status will match fallowing response:
+Example: status
+
+Will match fallowing response:
 
 ```json
 
