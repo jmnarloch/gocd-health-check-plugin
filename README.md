@@ -32,7 +32,27 @@ Example: http://localhost:8080/health
 
 The name of attribute indicating the application status. (required)
 
-Example: status
+Example: status will match fallowing response:
+
+```json
+
+{"status": "UP"}
+
+```
+
+You can use dot-object notation to navigate over response JSON.
+
+Example: health.status
+
+```json
+
+{
+    "health": {
+        "status": "green"
+     }
+}
+
+```
 
 ### Expected status
 
