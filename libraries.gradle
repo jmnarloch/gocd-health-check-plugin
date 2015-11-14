@@ -1,17 +1,17 @@
 ext {
 
     libraries = [
-            goPluginApi  : 'cd.go.plugin:go-plugin-api:14.4.0',
-            gocdTaskPluginApi  : 'io.jmnarloch:gocd-task-plugin-api:1.0.0',
+            goPluginApi      : 'cd.go.plugin:go-plugin-api:14.4.0',
+            gocdTaskPluginApi: 'io.jmnarloch:gocd-task-plugin-api:1.0.0',
 
-            rxJava: 'io.reactivex:rxjava:1.0.14',
-            rxNetty: 'io.reactivex:rxnetty:0.4.11',
+            rxJava           : 'io.reactivex:rxjava:1.0.14',
+            rxNetty          : 'io.reactivex:rxnetty:0.4.11',
 
-            commonsIO    : 'commons-io:commons-io:2.4',
-            commonsLang  : 'org.apache.commons:commons-lang3:3.4',
-            gson         : 'com.google.code.gson:gson:2.3.1',
+            commonsIO        : 'commons-io:commons-io:2.4',
+            commonsLang      : 'org.apache.commons:commons-lang3:3.4',
+            gson             : 'com.google.code.gson:gson:2.3.1',
 
-            junit        : 'junit:junit:4.12',
-            mockito      : 'org.mockito:mockito-all:1.10.19'
+            junit            : 'junit:junit:4.12',
+            mockito          : 'org.mockito:mockito-all:1.10.19'
     ]
 }
