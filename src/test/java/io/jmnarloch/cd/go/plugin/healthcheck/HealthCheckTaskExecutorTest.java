@@ -75,7 +75,7 @@ public class HealthCheckTaskExecutorTest {
             public Observable<Void> handle(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response) {
                 if ("/health".equals(request.getPath())) {
 
-                    return response.writeStringAndFlush("{status: UP}");
+                    return response.writeStringAndFlush("{\"status\": \"UP\", \"service\": {\"status\": \"UP\"}}");
                 }
                 response.setStatus(HttpResponseStatus.NOT_FOUND);
                 return response.close();
@@ -103,6 +103,25 @@ public class HealthCheckTaskExecutorTest {
         // given
         final ExecutionContext context = new ExecutionContext(new HashMap());
         final ExecutionConfiguration configuration = configuration(url("/health"), "status", "UP", 15, 30);
+        final JobConsoleLogger logger = mock(JobConsoleLogger.class);
+
+        // when
+        ExecutionResult result = instance.execute(context, configuration, logger);
+
+        // then
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+    }
+
+    /**
+     * Tests whether the health check succeeds.
+     */
+    @Test
+    public void shouldSuccessWithDotNotation() {
+
+        // given
+        final ExecutionContext context = new ExecutionContext(new HashMap());
+        final ExecutionConfiguration configuration = configuration(url("/health"), "service.status", "UP", 15, 30);
         final JobConsoleLogger logger = mock(JobConsoleLogger.class);
 
         // when

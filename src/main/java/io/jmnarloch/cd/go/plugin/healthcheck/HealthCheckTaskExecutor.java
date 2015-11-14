@@ -44,6 +44,11 @@ import java.util.concurrent.TimeUnit;
 public class HealthCheckTaskExecutor implements TaskExecutor {
 
     /**
+     * The dot notation separator.
+     */
+    private static final String SEPARATOR = "\\.";
+
+    /**
      * The logger used by this class.
      */
     private final Logger logger = Logger.getLoggerFor(HealthCheckTaskExecutor.class);
@@ -135,7 +140,12 @@ public class HealthCheckTaskExecutor implements TaskExecutor {
         return new Func1<JsonElement, JsonElement>() {
             @Override
             public JsonElement call(JsonElement jsonElement) {
-                return jsonElement.getAsJsonObject().get(attribute);
+                JsonElement element = jsonElement;
+                final String[] parts = attribute.split(SEPARATOR);
+                for(String part : parts) {
+                    element = element.getAsJsonObject().get(part);
+                }
+                return element;
             }
         };
     }
